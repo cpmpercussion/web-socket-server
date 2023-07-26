@@ -6,14 +6,13 @@ const { createServer } = require('http');
 const WebSocket = require('ws');
 
 const uuid = require('uuid');  
-const { timeStamp } = require('console');
+const { timeStamp, log } = require('console');
 
-const app = express();
+// const port = 3000;
 const port = 3000;
-
+const app = express();
 const server = createServer(app);
 const wss = new WebSocket.Server({ server });
-// const wss = new WebSocket('ws://localhost:3/ws');
 
 // // Broadcast to all.
 // wss.broadcast = function broadcast(data) {
@@ -22,62 +21,31 @@ const wss = new WebSocket.Server({ server });
 //       client.send(data);
 //   });
 // };
-
-
+var id =0;
+var lookup = {};
 
 wss.on('connection', function(ws) {
   console.log("client joined.");
 
-  ws.id = uuid.v4();
-  // console.log
-  // send "hello world" interval
-  // const textInterval = setInterval(() => ws.send("F"), 100);
+
+  // assign clients id and keep track of them.
+  ws.id = id ++;
+  lookup[ws.id] = ws;
   
-  // wss.clients.forEach(function each(client) {
-  //   console.log("Client id -> '" + client.id + "'");
-  // })
+
+  ws.on('error', console.error);
 
 
-  // send random bytes interval
-
-  // const binaryInterval = setInterval(() => ws.send(crypto.randomBytes(8).buffer), 110);
-
+  // ws.id = uuid.v4();
   ws.on('message', function(data) {
-
     wss.clients.forEach(function each(client) {
 
-      if ( client !== ws &&client.readyState === WebSocket.OPEN) {
+      if ( client.readyState === WebSocket.OPEN && ws != client ) {
         client.send(data);
-        // client.send("  ");
-        client.send(client.id);
-        // console.log("string received from client -> '" + data +" /n " + client.id );
-        // var d = new Date();
-        // var time = d.toISOString();
-        // console.log(new Date().toISOString());
-        console.log("string received from client -> '" + data + "'");
-        
-      
+        console.log("string received from client -> '" + data +" /n " + client.id );
       }
-      // wss.broadcast(data);
-
-    // if (client.readyState === WebSocket.OPEN) {
-    //   console.log(client.id);
-    //   console.log(client.data);
-
-    // if (typeof(data) === "string") {
-      // client sent a string
-      
-     
-
-    // } else {
-    //   console.log("binary received from client -> " + Array.from(data).join(", ") + "");
-    // }
-      // client.send(data);
   })
-
-
-      // const notes = setInterval(() => ws.send(data), 110);
-
+      
   });
 
   ws.on('close', function() {
@@ -90,10 +58,4 @@ wss.on('connection', function(ws) {
 
 server.listen(port, function() {
    console.log(`Listening on http://localhost:${port}`);
-
 });
-
-// app.listen(port, () => 
-//     console.log(`Server running on port ${port}`)
-// );
-// })();
