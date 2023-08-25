@@ -17,13 +17,20 @@ const sockets = {};
 
 const HL19_ip = "::ffff:192.168.0.172";
 const HL21_ip = "::ffff:192.168.0.253";
-const minilab1 = "::ffff:192.168.0.132"
+const HL35_ip = "::ffff:192.168.0.50";
+const HL36_ip = "::ffff:192.168.0.48";
+const minilab1 = "::ffff:192.168.0.132";
 const minilab2 = "::ffff:192.168.0.81";
+const ethernet1 = "::ffff:192.168.0.19";
+const ethernet2 = "::ffff:192.168.0.248";
+const ethernet3 = "::ffff:192.168.0.249";
 
 var laptop1 = minilab1;
-var laptop2 = minilab2;
-var hl1 = HL19_ip;
-var hl2 = HL21_ip;
+var laptop2 = minilab2; 
+var hl1 = ethernet2;
+var hl2 = ethernet3;
+var hl3 = ethernet2;
+var hl4 = ethernet3;
 
 var filename;
 var exp_con;
@@ -43,9 +50,10 @@ const questions = [
 ];
 
 inquirer.prompt(questions).then(answers => {
-  console.log(answers.file);
-  filename = answers.file;
+  filename = answers.filename;
+  console.log(answers.filename);
   exp_con = answers.expcon;
+  console.log(answers.expcon);
 
 
 });
@@ -66,39 +74,63 @@ wss.on('connection', function(ws, request, client) {
   //create new file
   fs.open(filename, 'w', function (err, file) {
     if (err) throw err;
-    console.log('Saved!');
+    console.log('File created!');
   }); 
 
 
   ws.on('error', console.error);
 
   ws.on('message', function message (data) {
-
+    
+    if (fs == null) {
+      fs.open(filename, 'w', function (err, file) {
+        if (err) throw err;
+        console.log('Open File!');
+      }); 
+    }
     if (exp_con == "rmi") {
           //RMI condition
-    if (user_id == laptop1) {
-          to(hl2, data)
-    } 
+      if (user_id == laptop1 ) {
+            to(hl4, data)
+      }else if (user_id == laptop2) {
+            to(hl3, data)
+      }
     
-    if (user_id == "::ffff:127.0.0.1") {
-          to(hl1, data)
-    }
     }else if (exp_con == "bmi") {
           //BMI condition
-    if (user_id == hl2) {
-      to(hl1, data)
-    }else if (user_id == hl1) {
-      to(hl2, data)
+    if (user_id == hl3) {
+      to(hl4, data)
+    }else if (user_id == hl4) {
+      to(hl3, data)
     }
     }else if (exp_con == "localtest"){
       to("::ffff:127.0.0.1", data)
     }else if (exp_con == "hltest"){
-      to(hl1, data)
+      to(hl4, data)
     }else if (exp_con == "dostest"){
       to("::ffff:192.168.0.216" ,data)
+    }else if  (exp_con == "duplex"){
+    //console.log(data)
+      if (user_id == laptop1) {
+      to(hl4, data)
+      }else if (user_id == laptop2) {
+      to(hl3, data)
+      }
+
+      if (user_id == hl4) {
+        to(hl3, data)
+      }else if (user_id == hl3) {
+        to(hl4, data)
+      }
+
     }
 
-    console.log(`Received message ${data} from user ${user_id}`);
+
+
+// to(hl1, data)
+    // to(hl2, data)
+    // to("::ffff:192.168.0.216" ,data)
+    //console.log(`Received message ${data} from user ${user_id}`);
 
     let timeStamp = new Date();
     content = `Message ${data} from user @ ${user_id} at @ ${timeStamp}`;
