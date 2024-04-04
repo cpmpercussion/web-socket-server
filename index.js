@@ -24,13 +24,15 @@ const minilab2 = "::ffff:192.168.0.81";
 const ethernet1 = "::ffff:192.168.0.19";
 const ethernet2 = "::ffff:192.168.0.248";
 const ethernet3 = "::ffff:192.168.0.249";
+const charles_ai = "::ffff:192.168.0.81:5001";
+// const charles = "::ffff:192.168.0.81";
 
 var laptop1 = minilab1;
 var laptop2 = minilab2; 
 var hl1 = ethernet2;
 var hl2 = ethernet3;
-var hl3 = ethernet2;
-var hl4 = ethernet3;
+var hl3 = ethernet1;
+var hl4 = ethernet2;
 
 var filename;
 var exp_con;
@@ -69,7 +71,8 @@ wss.on('connection', function(ws, request, client) {
   console.log("client joined.");
   const user_id = request.socket.remoteAddress;
   ws.id = user_id;
-  sockets[ws.id] = ws
+  sockets[ws.id] = ws;
+  // console.log(ws);
 
   //create new file
   fs.open(filename, 'w', function (err, file) {
@@ -77,11 +80,12 @@ wss.on('connection', function(ws, request, client) {
     console.log('File created!');
   }); 
 
-
   ws.on('error', console.error);
 
   ws.on('message', function message (data) {
-    
+    console.log(data);
+    // to(char, data);
+    // to(hl3, data);
     if (fs == null) {
       fs.open(filename, 'w', function (err, file) {
         if (err) throw err;
@@ -106,7 +110,7 @@ wss.on('connection', function(ws, request, client) {
     }else if (exp_con == "localtest"){
       to("::ffff:127.0.0.1", data)
     }else if (exp_con == "hltest"){
-      to(hl4, data)
+      to(hl3, data)
     }else if (exp_con == "dostest"){
       to("::ffff:192.168.0.216" ,data)
     }else if  (exp_con == "duplex"){
@@ -132,14 +136,14 @@ wss.on('connection', function(ws, request, client) {
     // to("::ffff:192.168.0.216" ,data)
     //console.log(`Received message ${data} from user ${user_id}`);
 
-    let timeStamp = new Date();
-    content = `Message ${data} from user @ ${user_id} at @ ${timeStamp}`;
-        fs.appendFile(filename.toString(), `${content}\n`, err => {
-          if (err) {
-            console.error(err);
-          }
+    // let timeStamp = new Date();
+    // content = `Message ${data} from user @ ${user_id} at @ ${timeStamp}`;
+    //     fs.appendFile(filename.toString(), `${content}\n`, err => {
+    //       if (err) {
+    //         console.error(err);
+    //       }
 
-      });
+    //   });
 
   });
 
