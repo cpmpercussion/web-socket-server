@@ -60,6 +60,27 @@ inquirer.prompt(questions).then(answers => {
 
 });
 
+// optional routing logic function
+function route_message (data) {
+  // could put the routing logic in one spot
+}
+
+// todo - to set up a client connection to charles' genai_midi_module
+const genai_ws = new WebSocket('ws://192.168.0.81:5001');
+
+sockets[genai_ws.id] = ws; // add to the list of socket
+
+genai_ws.on('open', function open() {
+  genai_ws.send('/hello');
+});
+
+genai_ws.on('message', route_message); // could do it this way so that
+
+// other option for your on('message' function.
+genai_ws.on('message', function message(data) {
+  // console.log('received: %s', data);
+  // TODO: put the routing logic here.
+});
 
 // thanks to https://stackoverflow.com/questions/51316727/how-do-i-send-a-message-to-a-specific-user-in-ws-library.
 function to(user, data) {
